@@ -21,7 +21,7 @@ export default function HistoryCard({ playerName, year, category, limit, limitLa
       <div className={`absolute left-0 top-0 h-full w-2 ${style.bar}`} />
       <div className="flex items-center gap-6 pl-2">
         <div className="text-center w-16">
-          <p className={`font-['Lexend'] font-black text-4xl ${style.scoreColor} leading-none`}>
+          <p className={`font-['Lexend'] font-black ${value !== '?' && String(value).length >= 4 ? 'text-2xl' : 'text-4xl'} ${style.scoreColor} leading-none`}>
             {value === '?' ? '?' : value}
           </p>
           <p className={`font-['Lexend'] font-bold text-[10px] uppercase ${style.bar.replace('bg-', 'text-')}`}>
