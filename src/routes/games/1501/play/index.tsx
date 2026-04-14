@@ -151,6 +151,7 @@ function RouteComponent() {
       },
     ])
 
+    setPlayerName('')
     const res = await fetchDartsResult({ data: params })
     if (res.status === 'processing') {
       retryRef.current = setTimeout(() => fetchAndResolve(params, index), 10_000)
@@ -321,6 +322,7 @@ function RouteComponent() {
 
             {/* Compact form — submit blocked until spun */}
             <SubmissionBetForm
+              key={submissions.length}
               playerName={playerName}
               year={year}
               onPlayerNameChange={setPlayerName}
