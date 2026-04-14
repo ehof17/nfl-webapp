@@ -63,6 +63,8 @@ export default function SubmissionBetForm({
               type="number"
               value={year}
               onChange={(e) => onYearChange(Number(e.target.value))}
+              min={1930}
+              max={2025}
               placeholder="Year"
               className="w-full sm:w-28 bg-[#353534] border-none focus:ring-0 text-[#e5e2e1] py-3 px-4 pl-5 font-['Lexend'] font-bold placeholder:text-[#8b938d] rounded-r-lg text-sm"
             />
