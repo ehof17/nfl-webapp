@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useEffect, useRef, useState } from 'react'
 import { fetchPlayerStats, filterToDivision, type NFLDivision } from '#/api/getNFLData'
+import {fuzzySearchPlayers, type FuzzyMatchPlayer} from '#/api/fuzzymatch'
 import { GAME_PRESETS, NFL_CATEGORIES, type DartsCategory, type DartsPreset } from '#/lib/dartsConfig'
 import SpinWheelCard from '../../nfl/dartsai/SpinWheelCard'
 import SubmissionBetForm from '../../nfl/dartsai/SubmissionBetForm'
@@ -29,7 +30,13 @@ const fetchDartsResult = createServerFn({ method: 'GET' })
     const value = season != null ? (season[category.field] as number) : 0
     return { status: 'ready' as const, value }
   })
-
+const fetchFuzzyMatchResult = createServerFn({ method: 'GET' })
+  .inputValidator(
+    (data: { query: string }) => data,
+  )
+  .handler(async ({ data }) => {
+    return await fuzzySearchPlayers(data.query)
+  })
 // ---------------------------------------------------------------------------
 // Route
 // ---------------------------------------------------------------------------
@@ -73,6 +80,11 @@ function RouteComponent() {
   const [score, setScore] = useState(config.startScore)
   const [gameState, setGameState] = useState<GameState>('playing')
   const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+
+  const [fuzzyResults, setFuzzyResults] = useState<FuzzyMatchPlayer[]>([])
+  const [showDropdown, setShowDropdown] = useState(false)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Spin state — must spin before every submission
   const [spinKey, setSpinKey] = useState(0)
@@ -173,6 +185,27 @@ function RouteComponent() {
     setSpinPhase('idle')
     wheelsDoneRef.current = 0
     if (retryRef.current) clearTimeout(retryRef.current)
+  }
+
+  useEffect(() => {
+    if (playerName.length < 2) {
+      setFuzzyResults([])
+      setShowDropdown(false)
+      return
+    }
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(async () => {
+      const results = await fetchFuzzyMatchResult({ data: { query: playerName } })
+      setFuzzyResults(results)
+      setShowDropdown(results.length > 0)
+    }, 300)
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
+  }, [playerName])
+
+  function selectPlayer(player: FuzzyMatchPlayer) {
+    setPlayerName(player.name)
+    setShowDropdown(false)
+    setFuzzyResults([])
   }
 
   useEffect(() => () => { if (retryRef.current) clearTimeout(retryRef.current) }, [])
@@ -321,6 +354,7 @@ function RouteComponent() {
             </div>
 
             {/* Compact form — submit blocked until spun */}
+            <div className="relative">
             <SubmissionBetForm
               key={submissions.length}
               playerName={playerName}
@@ -331,6 +365,25 @@ function RouteComponent() {
               disabled={gameState !== 'playing' || spinPhase !== 'ready'}
               compact
             />
+            {showDropdown && (
+              <div className="absolute z-50 left-0 right-0 top-[calc(100%-0.5rem)] bg-[#1c1b1b] border border-[#2e2d2d] rounded-lg shadow-xl max-h-60 overflow-y-auto">
+                {fuzzyResults.map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => selectPlayer(p)}
+                    className="w-full text-left px-4 py-2.5 hover:bg-[#2e2d2d] transition-colors flex items-center justify-between gap-3"
+                  >
+                    <span className="font-['Lexend'] font-bold text-sm text-[#e5e2e1]">
+                      {p.name}
+                    </span>
+                    <span className="font-['Lexend'] text-[10px] uppercase tracking-wider text-[#8b938d] shrink-0">
+                      {p.position} · {p.league} · {p.years_active}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           </div>
         </div>
 
