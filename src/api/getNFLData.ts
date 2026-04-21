@@ -8,7 +8,8 @@ export type FantasyFootballScraperType =
 export type NFLDartsCategoryType =
   | "PPR Fantasy Points in a Season"
   | "Rushing Yards in a Season"
-  | "Receiving Yards in a Season";
+  | "Receiving Yards in a Season"
+  | "Passing TDs in a Season";
 
 export interface NFLDartsCategoryConfig {
   scraper: FantasyFootballScraperType
@@ -19,6 +20,7 @@ export const DARTS_CATEGORY_CONFIG: Record<NFLDartsCategoryType, NFLDartsCategor
   "PPR Fantasy Points in a Season":    { scraper: "PPRFantasyFootball", field: "FantPt" },
   "Rushing Yards in a Season":   { scraper: "FootballYardage",   field: "RushingYds" },
   "Receiving Yards in a Season": { scraper: "FootballYardage",   field: "ReceivingYds" },
+  "Passing TDs in a Season": {scraper: "FootballTDs", field: "PassingTDs"}
 }
 
 export type NFLDivision = 
