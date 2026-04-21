@@ -24,6 +24,7 @@ export const NFL_CATEGORIES: DartsCategory[] = [
   { id: 'ppr',  label: 'PPR Fantasy Points',  scraper: 'PPRFantasyFootball', field: 'FantPt'       },
   { id: 'rush', label: 'Rushing Yards',        scraper: 'FootballYardage',   field: 'RushingYds'   },
   { id: 'rec',  label: 'Receiving Yards',      scraper: 'FootballYardage',   field: 'ReceivingYds' },
+  { id: 'tot', label: 'Passing Touchdowns', scraper: 'FootballTDs', field: 'PassingTDs' }
 ]
 
 export const NFL_PRESET: DartsPreset = {
