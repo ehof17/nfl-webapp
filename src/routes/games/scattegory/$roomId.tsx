@@ -13,15 +13,15 @@ const fetchScattegoryResult = createServerFn({ method: 'GET' })
   )
   .handler(async ({ data }) => {
     const category = NFL_CATEGORIES.find(c => c.id === data.categoryId)
-    if (!category) return { value: 0 }
+    if (!category) return { status: 'ready' as const, value: 0 }
     const res = await fetchPlayerStats(data.playerName, category.scraper)
-    if (res.status !== 'ready') return { value: 0 }
+    if (res.status !== 'ready') return { status: 'processing' as const, value: 0 }
     const filtered = filterToDivision(res.data, data.division as NFLDivision).filter(
       s => s.Year === data.year,
     )
     const season = filtered[0] as unknown as Record<string, unknown> | undefined
     const value = season != null ? (season[category.field] as number) ?? 0 : 0
-    return { value }
+    return { status: 'ready' as const, value }
   })
 
 // ---------------------------------------------------------------------------
@@ -206,6 +206,17 @@ function RoomPage() {
     }
     const blocked = new Set<string>([...nameCount.entries()].filter(([, n]) => n > 1).map(([k]) => k))
 
+    async function fetchWithRetry(playerName: string): Promise<number> {
+      for (let attempt = 0; attempt < 8; attempt++) {
+        const res = await fetchScattegoryResult({
+          data: { playerName, year: yr, categoryId: cat.id, division: div },
+        })
+        if (res.status === 'ready') return res.value
+        await new Promise(r => setTimeout(r, 10_000))
+      }
+      return 0
+    }
+
     const results: PlayerScore[] = await Promise.all(
       subs.map(async sub => {
         const entries: ScoreEntry[] = await Promise.all(
@@ -214,10 +225,8 @@ function RoomPage() {
             if (!key) return { name, value: null, blocked: false }
             if (blocked.has(key)) return { name, value: 0, blocked: true }
             try {
-              const res = await fetchScattegoryResult({
-                data: { playerName: name.trim(), year: yr, categoryId: cat.id, division: div },
-              })
-              return { name, value: res.value, blocked: false }
+              const value = await fetchWithRetry(name.trim())
+              return { name, value, blocked: false }
             } catch {
               return { name, value: null, blocked: false }
             }
