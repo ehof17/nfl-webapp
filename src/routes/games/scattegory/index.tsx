@@ -4,7 +4,7 @@ import { NFL_CATEGORIES } from '#/lib/dartsConfig'
 
 export const Route = createFileRoute('/games/scattegory/')({ component: ScattegoryLobby })
 
-const YEARS = Array.from({ length: 7 }, (_, i) => 2024 - i)
+const YEARS = Array.from({ length: 8 }, (_, i) => 2025 - i)
 
 function ScattegoryLobby() {
   const navigate = useNavigate()
