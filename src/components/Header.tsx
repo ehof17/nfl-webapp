@@ -30,6 +30,13 @@ export default function Header() {
           >
             1501
           </Link>
+          <Link
+            to="/games/scattegory"
+            className="font-['Lexend'] font-bold text-[11px] uppercase tracking-[0.2em] text-[#8b938d] hover:text-[#a5d0b9] transition-colors no-underline"
+            activeProps={{ className: "font-['Lexend'] font-bold text-[11px] uppercase tracking-[0.2em] text-[#a5d0b9] no-underline" }}
+          >
+            Scattegory
+          </Link>
         </div>
 
       </nav>

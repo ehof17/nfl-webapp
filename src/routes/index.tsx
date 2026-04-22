@@ -17,6 +17,19 @@ const GAMES = [
     tag: 'NFL',
   },
   {
+    id: 'scattegory',
+    name: 'Scattegory',
+    tagline: 'Name 5 players, outscore your friends.',
+    description:
+      'A random stat category and division is picked. Race to name 5 NFL players and rack up the highest total stats. Play with friends in real time.',
+    to: '/games/scattegory' as const,
+    icon: 'groups',
+    accentColor: '#a5d0b9',
+    dimColor: '#0d2018',
+    available: true,
+    tag: 'Multiplayer',
+  },
+  {
     id: 'guess-the-team',
     name: 'Guess The Team',
     tagline: 'Who played where?',
