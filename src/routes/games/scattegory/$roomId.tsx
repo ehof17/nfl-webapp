@@ -86,7 +86,7 @@ interface PlayerScore {
 function getWsUrl() {
   if (typeof window === 'undefined') return 'ws://localhost:3002'
   const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-  return `${proto}//${window.location.hostname}:3002`
+  return `${proto}//${window.location.host}/ws`
 }
 
 // ---------------------------------------------------------------------------

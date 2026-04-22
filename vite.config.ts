@@ -12,6 +12,12 @@ import { nitro } from 'nitro/vite'
 const config = defineConfig({
   server: {
     allowedHosts: ['emurdagames.elijah-hoffman.org'],
+    proxy: {
+      '/ws': {
+        target: 'ws://localhost:3002',
+        ws: true,
+      },
+    },
   },
   plugins: [
     devtools(),
