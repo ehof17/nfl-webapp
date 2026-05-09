@@ -83,37 +83,8 @@ function RouteComponent() {
     })
   }
 
-  async function fetchAndResolve(
-    params: { playerName: string; year: number; category: NFLDartsCategoryType; division: NFLDivision },
-    submissionIndex: number
-  ) {
-    const res = await getNFLData({ data: params })
-    if (res.status === 'processing') {
-      retryRef.current = setTimeout(() => fetchAndResolve(params, submissionIndex), 10_000)
-      return
-    }
-    const { field } = DARTS_CATEGORY_CONFIG[params.category]
-    const season = res.data[0] as unknown as Record<string, unknown> | undefined
-    const value = season != null ? (season[field] as number) : 0
-    applyValue(value, submissionIndex)
-  }
 
-  async function handleFetch() {
-    if (gameState !== 'playing') return
-    const params = { playerName, year, category, division }
-    const submissionIndex = submissions.length
-    setSubmissions((prev) => [...prev, { ...params, value: '?', scoreAfter: '?' }])
-
-    const res = await getNFLData({ data: params })
-    if (res.status === 'processing') {
-      retryRef.current = setTimeout(() => fetchAndResolve(params, submissionIndex), 10_000)
-      return
-    }
-    const { field } = DARTS_CATEGORY_CONFIG[category]
-    const season = res.data[0] as unknown as Record<string, unknown> | undefined
-    const value = season != null ? (season[field] as number) : 0
-    applyValue(value, submissionIndex)
-  }
+ 
 
   function resetGame() {
     setSubmissions([])

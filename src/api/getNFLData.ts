@@ -5,6 +5,10 @@ export type FantasyFootballScraperType =
   | "PPRFantasyFootball"
   | "FootballTDs";
 
+export type MLBScraperType = "MLBHittingSeason" | "MLBPitchingSeason"
+
+export type ScraperType = FantasyFootballScraperType | MLBScraperType
+
 export type NFLDartsCategoryType =
   | "PPR Fantasy Points in a Season"
   | "Rushing Yards in a Season"
@@ -23,7 +27,7 @@ export const DARTS_CATEGORY_CONFIG: Record<NFLDartsCategoryType, NFLDartsCategor
   "Passing TDs in a Season": {scraper: "FootballTDs", field: "PassingTDs"}
 }
 
-export type NFLDivision = 
+export type NFLDivision =
   | "AFC East"
   | "AFC North"
   | "AFC South"
@@ -32,6 +36,14 @@ export type NFLDivision =
   | "NFC North"
   | "NFC South"
   | "NFC West";
+
+export type MLBDivision =
+  | "AL East"
+  | "AL Central"
+  | "AL West"
+  | "NL East"
+  | "NL Central"
+  | "NL West";
 
 export interface BaseSeason {
   playerName: string
@@ -72,6 +84,20 @@ export interface FootballRewards extends BaseSeason {
   ComebackPlayer: boolean
 }
 
+export interface MLBHittingSeason extends BaseSeason {
+  HomeRuns: number
+  RBIs: number
+  StolenBases: number
+  Hits: number
+  Runs: number
+}
+
+export interface MLBPitchingSeason extends BaseSeason {
+  ERA: number
+  WAR: number
+  PitchingWins: number
+}
+
 export type NFLResponse<T> =
   | { status: "processing" }
   | { status: "ready"; data: T[] }
@@ -82,6 +108,8 @@ type GameTypeMap = {
   FootballYardage: FootballYardage
   FootballAwards: FootballRewards
   FootballTDs: FootballTDs
+  MLBHittingSeason: MLBHittingSeason
+  MLBPitchingSeason: MLBPitchingSeason
 }
 
 const DIVISION_TEAMS: Record<NFLDivision, string[]> = {
@@ -100,12 +128,26 @@ export function filterToDivision<T extends BaseSeason>(seasons: T[], division: N
   return seasons.filter((s) => teams.includes(s.TeamAtYear))
 }
 
+const MLB_DIVISION_TEAMS: Record<MLBDivision, string[]> = {
+  "AL East":    ["NYY", "BOS", "TBR", "TOR", "BAL"],
+  "AL Central": ["CLE", "CHW", "MIN", "KCR", "DET"],
+  "AL West":    ["HOU", "SEA", "LAA", "OAK", "TEX"],
+  "NL East":    ["ATL", "NYM", "PHI", "MIA", "WSN"],
+  "NL Central": ["CHC", "MIL", "STL", "PIT", "CIN"],
+  "NL West":    ["LAD", "SFG", "SDP", "COL", "ARI"],
+}
+
+export function filterToMLBDivision<T extends BaseSeason>(seasons: T[], division: MLBDivision): T[] {
+  const teams = MLB_DIVISION_TEAMS[division]
+  return seasons.filter((s) => teams.includes(s.TeamAtYear))
+}
+
 
 const AWS_URL =
   "https://8ta04a1fye.execute-api.us-east-2.amazonaws.com/default/GetNFLGameFunction";
 
 export async function fetchPlayerStats<
-  T extends FantasyFootballScraperType
+  T extends ScraperType
 >(
   player: string,
   gameType: T

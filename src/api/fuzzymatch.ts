@@ -8,10 +8,10 @@ export interface FuzzyMatchPlayer {
   team: string | null;
   years_active: string;
 }
-
-export async function fuzzySearchPlayers(query: string): Promise<FuzzyMatchPlayer[]> {
+// todo add league param here and filter by that as well
+export async function fuzzySearchPlayers(league: 'mlb' | 'nfl', query: string): Promise<FuzzyMatchPlayer[]> {
   const res = await fetch(
-    `${FUZZYMATCH_URL}/players/search?q=${encodeURIComponent(query)}`
+    `${FUZZYMATCH_URL}/players/search?q=${encodeURIComponent(query)}&league=${league}`
   );
   if (!res.ok) {
     throw new Error(`Player search failed: ${res.status} ${res.statusText}`);

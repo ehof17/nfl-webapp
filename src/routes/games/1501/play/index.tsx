@@ -1,41 +1,48 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useEffect, useRef, useState } from 'react'
-import { fetchPlayerStats, filterToDivision, type NFLDivision } from '#/api/getNFLData'
+import { fetchPlayerStats, filterToDivision, filterToMLBDivision, type BaseSeason, type NFLDivision, type MLBDivision } from '#/api/getNFLData'
 import {fuzzySearchPlayers, type FuzzyMatchPlayer} from '#/api/fuzzymatch'
-import { GAME_PRESETS, NFL_CATEGORIES, type DartsCategory, type DartsPreset } from '#/lib/dartsConfig'
+import { GAME_PRESETS, type DartsCategory, type DartsPreset } from '#/lib/dartsConfig'
 import SpinWheelCard from '../../nfl/dartsai/SpinWheelCard'
 import SubmissionBetForm from '../../nfl/dartsai/SubmissionBetForm'
 import HistoryCard, { type HistoryEntry } from '../../nfl/dartsai/HistoryCard'
 
-// ---------------------------------------------------------------------------
-// Server fn — extend the if/else when NBA or other sports are added
-// ---------------------------------------------------------------------------
 const fetchDartsResult = createServerFn({ method: 'GET' })
   .inputValidator(
     (data: { playerName: string; year: number; preset: string; categoryId: string; limit: string }) =>
       data,
   )
   .handler(async ({ data }) => {
-    const category = NFL_CATEGORIES.find((c) => c.id === data.categoryId)
+    const preset = GAME_PRESETS.find((p) => p.id === data.preset)
+    if (!preset) throw new Error(`Unknown preset: ${data.preset}`)
+    const category = preset.categories.find((c) => c.id === data.categoryId)
     if (!category) throw new Error(`Unknown category id: ${data.categoryId}`)
 
     const res = await fetchPlayerStats(data.playerName, category.scraper)
     if (res.status !== 'ready') return { status: 'processing' as const, value: 0 }
 
-    const filtered = filterToDivision(res.data, data.limit as NFLDivision).filter(
-      (s) => s.Year === data.year,
-    )
+    const byYear = (res.data as unknown as BaseSeason[]).filter((s) => s.Year === data.year)
+    let filtered: BaseSeason[]
+    if (data.preset === 'nfl') {
+      filtered = filterToDivision(byYear, data.limit as NFLDivision)
+    } else if (data.preset === 'mlb') {
+      filtered = filterToMLBDivision(byYear, data.limit as MLBDivision)
+    } else {
+      filtered = byYear
+    }
+
     const season = filtered[0] as Record<string, unknown> | undefined
     const value = season != null ? (season[category.field] as number) : 0
     return { status: 'ready' as const, value }
   })
+
 const fetchFuzzyMatchResult = createServerFn({ method: 'GET' })
   .inputValidator(
-    (data: { query: string }) => data,
+    (data: { query: string; league: 'mlb' | 'nfl' }) => data,
   )
   .handler(async ({ data }) => {
-    return await fuzzySearchPlayers(data.query)
+    return await fuzzySearchPlayers(data.league, data.query)
   })
 // ---------------------------------------------------------------------------
 // Route
@@ -195,7 +202,8 @@ function RouteComponent() {
     }
     if (debounceRef.current) clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(async () => {
-      const results = await fetchFuzzyMatchResult({ data: { query: playerName } })
+      const league = presetId === 'mlb' ? 'mlb' : 'nfl'
+      const results = await fetchFuzzyMatchResult({ data: { query: playerName, league } })
       setFuzzyResults(results)
       setShowDropdown(results.length > 0)
     }, 300)
