@@ -44,11 +44,11 @@ export const NFL_PRESET: DartsPreset = {
 }
 
 export const MLB_HITTING_CATEGORIES: DartsCategory[] = [
-  { id: 'hr',  label: 'Home Runs',    scraper: 'MLBHittingSeason', field: 'HomeRuns'    },
-  { id: 'rbi', label: 'RBIs',         scraper: 'MLBHittingSeason', field: 'RBIs'        },
-  { id: 'sb',  label: 'Stolen Bases', scraper: 'MLBHittingSeason', field: 'StolenBases' },
-  { id: 'h',   label: 'Hits',         scraper: 'MLBHittingSeason', field: 'Hits'        },
-  { id: 'r',   label: 'Runs',         scraper: 'MLBHittingSeason', field: 'Runs'        },
+  { id: 'hr',  label: 'Home Runs',    scraper: 'MLBBattingSeason', field: 'HomeRuns'    },
+  { id: 'rbi', label: 'RBIs',         scraper: 'MLBBattingSeason', field: 'RBI'         },
+  { id: 'sb',  label: 'Stolen Bases', scraper: 'MLBBattingSeason', field: 'StolenBases' },
+  { id: 'h',   label: 'Hits',         scraper: 'MLBBattingSeason', field: 'Hits'        },
+  { id: 'r',   label: 'Runs',         scraper: 'MLBBattingSeason', field: 'Runs'        },
 ]
 
 export const MLB_PITCHING_CATEGORIES: DartsCategory[] = [
@@ -61,11 +61,11 @@ export const MLB_CATEGORIES: DartsCategory[] = [...MLB_HITTING_CATEGORIES, ...ML
 
 export const MLB_PRESET: DartsPreset = {
   id: 'mlb',
-  name: 'MLB 1501',
+  name: 'MLB 501',
   sport: 'MLB',
   icon: 'sports_baseball',
-  startScore: 1501,
-  winMargin: 10,
+  startScore: 501,
+  winMargin: 5,
   categories: MLB_CATEGORIES,
   limits: [
     'AL East', 'AL Central', 'AL West',

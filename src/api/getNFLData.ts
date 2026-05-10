@@ -5,7 +5,7 @@ export type FantasyFootballScraperType =
   | "PPRFantasyFootball"
   | "FootballTDs";
 
-export type MLBScraperType = "MLBHittingSeason" | "MLBPitchingSeason"
+export type MLBScraperType = "MLBBattingSeason" | "MLBPitchingSeason"
 
 export type ScraperType = FantasyFootballScraperType | MLBScraperType
 
@@ -86,7 +86,7 @@ export interface FootballRewards extends BaseSeason {
 
 export interface MLBHittingSeason extends BaseSeason {
   HomeRuns: number
-  RBIs: number
+  RBI: number
   StolenBases: number
   Hits: number
   Runs: number
@@ -108,7 +108,7 @@ type GameTypeMap = {
   FootballYardage: FootballYardage
   FootballAwards: FootballRewards
   FootballTDs: FootballTDs
-  MLBHittingSeason: MLBHittingSeason
+  MLBBattingSeason: MLBHittingSeason
   MLBPitchingSeason: MLBPitchingSeason
 }
 
@@ -128,6 +128,7 @@ export function filterToDivision<T extends BaseSeason>(seasons: T[], division: N
   return seasons.filter((s) => teams.includes(s.TeamAtYear))
 }
 
+// doesnt take into account teams changing names or different
 const MLB_DIVISION_TEAMS: Record<MLBDivision, string[]> = {
   "AL East":    ["NYY", "BOS", "TBR", "TOR", "BAL"],
   "AL Central": ["CLE", "CHW", "MIN", "KCR", "DET"],

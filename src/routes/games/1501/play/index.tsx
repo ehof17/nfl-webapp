@@ -1,12 +1,23 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useEffect, useRef, useState } from 'react'
 import { fetchPlayerStats, filterToDivision, filterToMLBDivision, type BaseSeason, type NFLDivision, type MLBDivision } from '#/api/getNFLData'
 import {fuzzySearchPlayers, type FuzzyMatchPlayer} from '#/api/fuzzymatch'
 import { GAME_PRESETS, type DartsCategory, type DartsPreset } from '#/lib/dartsConfig'
+import { saveScoreRecord } from '#/api/scores'
 import SpinWheelCard from '../../nfl/dartsai/SpinWheelCard'
 import SubmissionBetForm from '../../nfl/dartsai/SubmissionBetForm'
 import HistoryCard, { type HistoryEntry } from '../../nfl/dartsai/HistoryCard'
+
+const saveScoreFn = createServerFn({ method: 'POST' })
+  .inputValidator(
+    (data: { sport: string; entrantName: string; finalScore: number; throwsUsed: number; history: HistoryEntry[]; categories: string[] }) =>
+      data,
+  )
+  .handler(async ({ data }) => {
+    await saveScoreRecord(data)
+    return { ok: true }
+  })
 
 const fetchDartsResult = createServerFn({ method: 'GET' })
   .inputValidator(
@@ -87,6 +98,10 @@ function RouteComponent() {
   const [score, setScore] = useState(config.startScore)
   const [gameState, setGameState] = useState<GameState>('playing')
   const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const [entrantName, setEntrantName] = useState('')
+  const [scoreSaved, setScoreSaved] = useState(false)
+  const [saving, setSaving] = useState(false)
 
 
   const [fuzzyResults, setFuzzyResults] = useState<FuzzyMatchPlayer[]>([])
@@ -179,6 +194,26 @@ function RouteComponent() {
     applyValue(res.value, index, params.limit)
   }
 
+  async function handleSaveScore() {
+    if (!entrantName.trim() || saving) return
+    setSaving(true)
+    try {
+      await saveScoreFn({
+        data: {
+          sport: presetId,
+          entrantName: entrantName.trim(),
+          finalScore: score,
+          throwsUsed: config.limits.length - availableLimits.length,
+          history: submissions,
+          categories: selectedCategoryIds ?? config.categories.map((c) => c.id),
+        },
+      })
+      setScoreSaved(true)
+    } finally {
+      setSaving(false)
+    }
+  }
+
   function resetGame() {
     setPlayerName('')
     setYear(2023)
@@ -192,6 +227,9 @@ function RouteComponent() {
     setSpinPhase('idle')
     wheelsDoneRef.current = 0
     if (retryRef.current) clearTimeout(retryRef.current)
+    setEntrantName('')
+    setScoreSaved(false)
+    setSaving(false)
   }
 
   useEffect(() => {
@@ -269,8 +307,8 @@ function RouteComponent() {
           </div>
         </div>
 
-        {/* ── Game-over banner ── */}
-        {gameState !== 'playing' && (
+        {/* ── Game-over banner (bust / out) ── */}
+        {(gameState === 'bust' || gameState === 'out') && (
           <div className="bg-[#1c1b1b] border-l-4 border-[#a5d0b9] p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="text-[#a5d0b9] font-['Lexend'] font-bold text-lg uppercase leading-none">
@@ -284,6 +322,74 @@ function RouteComponent() {
             >
               Play Again
             </button>
+          </div>
+        )}
+
+        {/* ── Win modal overlay ── */}
+        {gameState === 'won' && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+            <div className="bg-[#1c1b1b] border border-[#ffb693]/30 rounded-2xl p-8 w-full max-w-md shadow-2xl">
+              <p className="font-['Lexend'] font-black text-5xl text-[#ffb693] uppercase tracking-tighter leading-none mb-1">
+                You Win!
+              </p>
+              <p className="text-[#8b938d] font-['Lexend'] text-sm mb-6">
+                Final score: <span className="text-[#e5e2e1] font-bold">{score}</span>
+                &nbsp;·&nbsp;Throws used: <span className="text-[#e5e2e1] font-bold">{config.limits.length - availableLimits.length}</span>
+              </p>
+
+              {!scoreSaved ? (
+                <>
+                  <p className="text-[#e5e2e1] font-['Lexend'] font-bold text-xs uppercase tracking-[0.2em] mb-2">
+                    Enter your name for the leaderboard
+                  </p>
+                  <input
+                    type="text"
+                    value={entrantName}
+                    onChange={(e) => setEntrantName(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleSaveScore() }}
+                    placeholder="Your name…"
+                    maxLength={40}
+                    className="w-full bg-[#131313] border border-[#2e2d2d] rounded-xl px-4 py-3 text-[#e5e2e1] font-['Lexend'] text-sm placeholder-[#4a4a4a] focus:outline-none focus:border-[#ffb693] mb-4"
+                  />
+                  <div className="flex gap-3">
+                    <button
+                      onClick={handleSaveScore}
+                      disabled={!entrantName.trim() || saving}
+                      className="flex-1 bg-[#ffb693] text-[#561f00] font-['Lexend'] font-black py-3 rounded-full text-sm uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      {saving ? 'Saving…' : 'Submit Score'}
+                    </button>
+                    <button
+                      onClick={resetGame}
+                      className="px-5 py-3 rounded-full font-['Lexend'] font-bold text-sm uppercase tracking-widest text-[#8b938d] border border-[#2e2d2d] hover:border-[#ffb693]/50 hover:text-[#e5e2e1] transition-all"
+                    >
+                      Skip
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="text-[#a5d0b9] font-['Lexend'] font-bold text-sm mb-6">
+                    Score saved to the leaderboard!
+                  </p>
+                  <div className="flex gap-3">
+                    <Link
+                      to="/games/1501/scoreboard"
+                      search={{ sport: presetId }}
+                      className="flex-1 text-center bg-[#ffb693] text-[#561f00] font-['Lexend'] font-black py-3 rounded-full text-sm uppercase tracking-widest hover:brightness-110 transition-all"
+                    >
+                      View Scoreboard
+                    </Link>
+                    <button
+                      onClick={resetGame}
+                      className="px-5 py-3 rounded-full font-['Lexend'] font-bold text-sm uppercase tracking-widest text-[#8b938d] border border-[#2e2d2d] hover:border-[#ffb693]/50 hover:text-[#e5e2e1] transition-all"
+                    >
+                      Play Again
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         )}
 

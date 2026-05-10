@@ -16,6 +16,7 @@ import { Route as Games1501IndexRouteImport } from './routes/games/1501/index'
 import { Route as GamesScattegoryRoomIdRouteImport } from './routes/games/scattegory/$roomId'
 import { Route as GamesNflDartsaiIndexRouteImport } from './routes/games/nfl/dartsai/index'
 import { Route as GamesNflDartsIndexRouteImport } from './routes/games/nfl/darts/index'
+import { Route as Games1501ScoreboardIndexRouteImport } from './routes/games/1501/scoreboard/index'
 import { Route as Games1501PlayIndexRouteImport } from './routes/games/1501/play/index'
 
 const IndexRoute = IndexRouteImport.update({
@@ -53,6 +54,12 @@ const GamesNflDartsIndexRoute = GamesNflDartsIndexRouteImport.update({
   path: '/games/nfl/darts/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Games1501ScoreboardIndexRoute =
+  Games1501ScoreboardIndexRouteImport.update({
+    id: '/games/1501/scoreboard/',
+    path: '/games/1501/scoreboard/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const Games1501PlayIndexRoute = Games1501PlayIndexRouteImport.update({
   id: '/games/1501/play/',
   path: '/games/1501/play/',
@@ -66,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/games/nfl/': typeof GamesNflIndexRoute
   '/games/scattegory/': typeof GamesScattegoryIndexRoute
   '/games/1501/play/': typeof Games1501PlayIndexRoute
+  '/games/1501/scoreboard/': typeof Games1501ScoreboardIndexRoute
   '/games/nfl/darts/': typeof GamesNflDartsIndexRoute
   '/games/nfl/dartsai/': typeof GamesNflDartsaiIndexRoute
 }
@@ -76,6 +84,7 @@ export interface FileRoutesByTo {
   '/games/nfl': typeof GamesNflIndexRoute
   '/games/scattegory': typeof GamesScattegoryIndexRoute
   '/games/1501/play': typeof Games1501PlayIndexRoute
+  '/games/1501/scoreboard': typeof Games1501ScoreboardIndexRoute
   '/games/nfl/darts': typeof GamesNflDartsIndexRoute
   '/games/nfl/dartsai': typeof GamesNflDartsaiIndexRoute
 }
@@ -87,6 +96,7 @@ export interface FileRoutesById {
   '/games/nfl/': typeof GamesNflIndexRoute
   '/games/scattegory/': typeof GamesScattegoryIndexRoute
   '/games/1501/play/': typeof Games1501PlayIndexRoute
+  '/games/1501/scoreboard/': typeof Games1501ScoreboardIndexRoute
   '/games/nfl/darts/': typeof GamesNflDartsIndexRoute
   '/games/nfl/dartsai/': typeof GamesNflDartsaiIndexRoute
 }
@@ -99,6 +109,7 @@ export interface FileRouteTypes {
     | '/games/nfl/'
     | '/games/scattegory/'
     | '/games/1501/play/'
+    | '/games/1501/scoreboard/'
     | '/games/nfl/darts/'
     | '/games/nfl/dartsai/'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/games/nfl'
     | '/games/scattegory'
     | '/games/1501/play'
+    | '/games/1501/scoreboard'
     | '/games/nfl/darts'
     | '/games/nfl/dartsai'
   id:
@@ -119,6 +131,7 @@ export interface FileRouteTypes {
     | '/games/nfl/'
     | '/games/scattegory/'
     | '/games/1501/play/'
+    | '/games/1501/scoreboard/'
     | '/games/nfl/darts/'
     | '/games/nfl/dartsai/'
   fileRoutesById: FileRoutesById
@@ -130,6 +143,7 @@ export interface RootRouteChildren {
   GamesNflIndexRoute: typeof GamesNflIndexRoute
   GamesScattegoryIndexRoute: typeof GamesScattegoryIndexRoute
   Games1501PlayIndexRoute: typeof Games1501PlayIndexRoute
+  Games1501ScoreboardIndexRoute: typeof Games1501ScoreboardIndexRoute
   GamesNflDartsIndexRoute: typeof GamesNflDartsIndexRoute
   GamesNflDartsaiIndexRoute: typeof GamesNflDartsaiIndexRoute
 }
@@ -185,6 +199,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GamesNflDartsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/games/1501/scoreboard/': {
+      id: '/games/1501/scoreboard/'
+      path: '/games/1501/scoreboard'
+      fullPath: '/games/1501/scoreboard/'
+      preLoaderRoute: typeof Games1501ScoreboardIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/games/1501/play/': {
       id: '/games/1501/play/'
       path: '/games/1501/play'
@@ -202,6 +223,7 @@ const rootRouteChildren: RootRouteChildren = {
   GamesNflIndexRoute: GamesNflIndexRoute,
   GamesScattegoryIndexRoute: GamesScattegoryIndexRoute,
   Games1501PlayIndexRoute: Games1501PlayIndexRoute,
+  Games1501ScoreboardIndexRoute: Games1501ScoreboardIndexRoute,
   GamesNflDartsIndexRoute: GamesNflDartsIndexRoute,
   GamesNflDartsaiIndexRoute: GamesNflDartsaiIndexRoute,
 }

@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { GAME_PRESETS, NFL_PRESET, type DartsPreset } from '#/lib/dartsConfig'
 
@@ -41,9 +41,19 @@ function RouteComponent() {
       <main className="pt-12 pb-32 px-4 max-w-4xl mx-auto">
         {/* Hero */}
         <section className="mb-16">
-          <span className="text-[#ffb693] font-['Lexend'] font-bold uppercase tracking-[0.2em] text-sm mb-4 block">
-            Choose Your Game
-          </span>
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <span className="text-[#ffb693] font-['Lexend'] font-bold uppercase tracking-[0.2em] text-sm">
+              Choose Your Game
+            </span>
+            <Link
+              to="/games/1501/scoreboard"
+              search={{ sport: selectedPreset.id }}
+              className="flex items-center gap-1.5 text-[#8b938d] font-['Lexend'] font-bold uppercase tracking-[0.15em] text-xs hover:text-[#ffb693] transition-colors"
+            >
+              <span className="material-symbols-outlined text-sm">leaderboard</span>
+              Scoreboard
+            </Link>
+          </div>
           <h1 className="font-['Lexend'] font-black text-6xl md:text-8xl leading-none uppercase tracking-tighter text-[#e5e2e1]">
             <span className="text-[#ffb693] italic">1501</span>
           </h1>
