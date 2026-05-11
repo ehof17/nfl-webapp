@@ -75,7 +75,14 @@ export const MLB_PRESET: DartsPreset = {
   available: true,
 }
 
-// Stub — swap in when NBA data is wired up
+export const NBA_CATEGORIES: DartsCategory[] = [
+  { id: 'pts', label: 'Points',   scraper: 'NBATotalsSeason', field: 'PTS' },
+  { id: 'trb', label: 'Rebounds', scraper: 'NBATotalsSeason', field: 'TRB' },
+  { id: 'ast', label: 'Assists',  scraper: 'NBATotalsSeason', field: 'AST' },
+  { id: 'stl', label: 'Steals',   scraper: 'NBATotalsSeason', field: 'STL' },
+  { id: 'blk', label: 'Blocks',   scraper: 'NBATotalsSeason', field: 'BLK' },
+]
+
 export const NBA_PRESET: DartsPreset = {
   id: 'nba',
   name: 'NBA 1501',
@@ -83,10 +90,10 @@ export const NBA_PRESET: DartsPreset = {
   icon: 'sports_basketball',
   startScore: 1501,
   winMargin: 10,
-  categories: [],
-  limits: [],
-  limitLabel: 'Conference',
-  available: false,
+  categories: NBA_CATEGORIES,
+  limits: ['Atlantic', 'Central', 'Southeast', 'Northwest', 'Pacific', 'Southwest'],
+  limitLabel: 'Division',
+  available: true,
 }
 
 export const GAME_PRESETS: DartsPreset[] = [NFL_PRESET, MLB_PRESET, NBA_PRESET]

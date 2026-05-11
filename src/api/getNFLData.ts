@@ -7,7 +7,9 @@ export type FantasyFootballScraperType =
 
 export type MLBScraperType = "MLBBattingSeason" | "MLBPitchingSeason"
 
-export type ScraperType = FantasyFootballScraperType | MLBScraperType
+export type NBAScraperType = "NBATotalsSeason"
+
+export type ScraperType = FantasyFootballScraperType | MLBScraperType | NBAScraperType
 
 export type NFLDartsCategoryType =
   | "PPR Fantasy Points in a Season"
@@ -44,6 +46,14 @@ export type MLBDivision =
   | "NL East"
   | "NL Central"
   | "NL West";
+
+export type NBADivision =
+  | "Atlantic"
+  | "Central"
+  | "Southeast"
+  | "Northwest"
+  | "Pacific"
+  | "Southwest";
 
 export interface BaseSeason {
   playerName: string
@@ -98,6 +108,15 @@ export interface MLBPitchingSeason extends BaseSeason {
   PitchingWins: number
 }
 
+export interface NBATotalsSeason extends BaseSeason {
+  PTS: number
+  TRB: number
+  AST: number
+  STL: number
+  BLK: number
+  Games: number
+}
+
 export type NFLResponse<T> =
   | { status: "processing" }
   | { status: "ready"; data: T[] }
@@ -110,6 +129,7 @@ type GameTypeMap = {
   FootballTDs: FootballTDs
   MLBBattingSeason: MLBHittingSeason
   MLBPitchingSeason: MLBPitchingSeason
+  NBATotalsSeason: NBATotalsSeason
 }
 
 const DIVISION_TEAMS: Record<NFLDivision, string[]> = {
@@ -140,6 +160,20 @@ const MLB_DIVISION_TEAMS: Record<MLBDivision, string[]> = {
 
 export function filterToMLBDivision<T extends BaseSeason>(seasons: T[], division: MLBDivision): T[] {
   const teams = MLB_DIVISION_TEAMS[division]
+  return seasons.filter((s) => teams.includes(s.TeamAtYear))
+}
+
+const NBA_DIVISION_TEAMS: Record<NBADivision, string[]> = {
+  "Atlantic":  ["BOS", "BRK", "NYK", "PHI", "TOR"],
+  "Central":   ["CHI", "CLE", "DET", "IND", "MIL"],
+  "Southeast": ["ATL", "CHA", "MIA", "ORL", "WAS"],
+  "Northwest": ["DEN", "MIN", "OKC", "POR", "UTA"],
+  "Pacific":   ["GSW", "LAC", "LAL", "PHO", "SAC"],
+  "Southwest": ["DAL", "HOU", "MEM", "NOP", "SAS"],
+}
+
+export function filterToNBADivision<T extends BaseSeason>(seasons: T[], division: NBADivision): T[] {
+  const teams = NBA_DIVISION_TEAMS[division]
   return seasons.filter((s) => teams.includes(s.TeamAtYear))
 }
 

@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useEffect, useRef, useState } from 'react'
-import { fetchPlayerStats, filterToDivision, filterToMLBDivision, type BaseSeason, type NFLDivision, type MLBDivision } from '#/api/getNFLData'
+import { fetchPlayerStats, filterToDivision, filterToMLBDivision, filterToNBADivision, type BaseSeason, type NFLDivision, type MLBDivision, type NBADivision } from '#/api/getNFLData'
 import {fuzzySearchPlayers, type FuzzyMatchPlayer} from '#/api/fuzzymatch'
 import { GAME_PRESETS, type DartsCategory, type DartsPreset } from '#/lib/dartsConfig'
 import { saveScoreRecord } from '#/api/scores'
@@ -39,6 +39,8 @@ const fetchDartsResult = createServerFn({ method: 'GET' })
       filtered = filterToDivision(byYear, data.limit as NFLDivision)
     } else if (data.preset === 'mlb') {
       filtered = filterToMLBDivision(byYear, data.limit as MLBDivision)
+    } else if (data.preset === 'nba') {
+      filtered = filterToNBADivision(byYear, data.limit as NBADivision)
     } else {
       filtered = byYear
     }
@@ -50,7 +52,7 @@ const fetchDartsResult = createServerFn({ method: 'GET' })
 
 const fetchFuzzyMatchResult = createServerFn({ method: 'GET' })
   .inputValidator(
-    (data: { query: string; league: 'mlb' | 'nfl' }) => data,
+    (data: { query: string; league: 'mlb' | 'nfl' | 'nba' }) => data,
   )
   .handler(async ({ data }) => {
     return await fuzzySearchPlayers(data.league, data.query)
@@ -240,7 +242,7 @@ function RouteComponent() {
     }
     if (debounceRef.current) clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(async () => {
-      const league = presetId === 'mlb' ? 'mlb' : 'nfl'
+      const league = presetId === 'mlb' ? 'mlb' : presetId === 'nba' ? 'nba' : 'nfl'
       const results = await fetchFuzzyMatchResult({ data: { query: playerName, league } })
       setFuzzyResults(results)
       setShowDropdown(results.length > 0)
