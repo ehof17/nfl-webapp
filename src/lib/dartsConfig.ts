@@ -52,9 +52,8 @@ export const MLB_HITTING_CATEGORIES: DartsCategory[] = [
 ]
 
 export const MLB_PITCHING_CATEGORIES: DartsCategory[] = [
-  { id: 'era', label: 'ERA',          scraper: 'MLBPitchingSeason', field: 'ERA'          },
-  { id: 'war', label: 'WAR',          scraper: 'MLBPitchingSeason', field: 'WAR'          },
-  { id: 'pw',  label: 'Pitching Wins', scraper: 'MLBPitchingSeason', field: 'PitchingWins' },
+  { id: 'ip', label: 'Innings Pitched', scraper: 'MLBPitchingSeason', field: 'InningsPitched' },
+  { id: 'so', label: 'Strikeouts', scraper: 'MLBPitchingSeason', field: 'Strikeouts' },
 ]
 
 export const MLB_CATEGORIES: DartsCategory[] = [...MLB_HITTING_CATEGORIES, ...MLB_PITCHING_CATEGORIES]

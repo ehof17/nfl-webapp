@@ -103,9 +103,8 @@ export interface MLBHittingSeason extends BaseSeason {
 }
 
 export interface MLBPitchingSeason extends BaseSeason {
-  ERA: number
-  WAR: number
-  PitchingWins: number
+  InningsPitched: number
+  Strikeouts: number
 }
 
 export interface NBATotalsSeason extends BaseSeason {
